@@ -27,21 +27,22 @@ public class RecordingService extends Service {
 	
 	private static final String LOG_TAG = "RecordingService";
 	
-	private String mFileName = null;
-	private String mFilePath = null;
+	private String fileName = null;
+	private String filePath = null;
 	
-	private MediaRecorder mRecorder = null;
+	private MediaRecorder recorder = null;
 	
-	private DBHelper mDatabase;
+	private DBHelper database;
 	
-	private long mStartingTimeMillis = 0;
-	private long mElapsedMillis = 0;
-	private int mElapsedSeconds = 0;
+	private long startingTimeMillis = 0;
+	private long elapsedMillis = 0;
+	private int elapsedSeconds = 0;
 	private OnTimerChangedListener onTimerChangedListener = null;
 	private static final SimpleDateFormat mTimerFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
 	
-	private Timer mTimer = null;
-	private TimerTask mIncrementTimerTask = null;
+	private Timer timer = null;
+	private TimerTask incrementTimerTask = null;
+	private File file;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -55,7 +56,7 @@ public class RecordingService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		mDatabase = new DBHelper(getApplicationContext());
+		database = new DBHelper(getApplicationContext());
 	}
 	
 	@Override
@@ -66,7 +67,7 @@ public class RecordingService extends Service {
 	
 	@Override
 	public void onDestroy() {
-		if (mRecorder != null) {
+		if (recorder != null) {
 			stopRecording();
 		}
 		
@@ -76,20 +77,20 @@ public class RecordingService extends Service {
 	public void startRecording() {
 		setFileNameAndPath();
 		
-		mRecorder = new MediaRecorder();
-		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-		mRecorder.setOutputFile(mFilePath);
-		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-		mRecorder.setAudioChannels(1);
+		recorder = new MediaRecorder();
+		recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+		recorder.setOutputFile(filePath);
+		recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+		recorder.setAudioChannels(1);
 		//high quality
-		mRecorder.setAudioSamplingRate(44100);
-		mRecorder.setAudioEncodingBitRate(192000);
+		recorder.setAudioSamplingRate(44100);
+		recorder.setAudioEncodingBitRate(192000);
 		
 		try {
-			mRecorder.prepare();
-			mRecorder.start();
-			mStartingTimeMillis = System.currentTimeMillis();
+			recorder.prepare();
+			recorder.start();
+			startingTimeMillis = System.currentTimeMillis();
 			
 			//startTimer();
 			//startForeground(1, createNotification());
@@ -101,36 +102,35 @@ public class RecordingService extends Service {
 	
 	public void setFileNameAndPath() {
 		int count = 0;
-		File f;
 		
 		do {
 			count++;
 			
-			mFileName = getString(R.string.default_file_name)
-				+ "_" + (mDatabase.getCount() + count) + ".mp4";
-			mFilePath = Environment.getExternalStorageDirectory().getAbsolutePath();
-			mFilePath += "/SoundRecorder/" + mFileName;
+			fileName = getString(R.string.default_file_name)
+				+ "_" + (database.getCount() + count) + ".mp4";
+			filePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+			filePath += "/SoundRecorder/" + fileName;
 			
-			f = new File(mFilePath);
-		} while (f.exists() && !f.isDirectory());
+			file = new File(filePath);
+		} while (file.exists() && !file.isDirectory());
 	}
 	
 	public void stopRecording() {
-		mRecorder.stop();
-		mElapsedMillis = (System.currentTimeMillis() - mStartingTimeMillis);
-		mRecorder.release();
-		Toast.makeText(this, getString(R.string.toast_recording_finish) + " " + mFilePath, Toast.LENGTH_LONG).show();
+		recorder.stop();
+		elapsedMillis = (System.currentTimeMillis() - startingTimeMillis);
+		recorder.release();
+		Toast.makeText(this, getString(R.string.toast_recording_finish) + " " + filePath, Toast.LENGTH_LONG).show();
 		
 		//remove notification
-		if (mIncrementTimerTask != null) {
-			mIncrementTimerTask.cancel();
-			mIncrementTimerTask = null;
+		if (incrementTimerTask != null) {
+			incrementTimerTask.cancel();
+			incrementTimerTask = null;
 		}
 		
-		mRecorder = null;
+		recorder = null;
 		
 		try {
-			mDatabase.addRecording(mFileName, mFilePath, mElapsedMillis);
+			database.addRecording(fileName, filePath, elapsedMillis, file.length() / 1024);
 			
 		} catch (Exception e) {
 			Log.e(LOG_TAG, "exception", e);
@@ -138,18 +138,18 @@ public class RecordingService extends Service {
 	}
 	
 	private void startTimer() {
-		mTimer = new Timer();
-		mIncrementTimerTask = new TimerTask() {
+		timer = new Timer();
+		incrementTimerTask = new TimerTask() {
 			@Override
 			public void run() {
-				mElapsedSeconds++;
+				elapsedSeconds++;
 				if (onTimerChangedListener != null)
-					onTimerChangedListener.onTimerChanged(mElapsedSeconds);
+					onTimerChangedListener.onTimerChanged(elapsedSeconds);
 				NotificationManager mgr = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 				mgr.notify(1, createNotification());
 			}
 		};
-		mTimer.scheduleAtFixedRate(mIncrementTimerTask, 1000, 1000);
+		timer.scheduleAtFixedRate(incrementTimerTask, 1000, 1000);
 	}
 	
 	//TODO:
@@ -158,7 +158,7 @@ public class RecordingService extends Service {
 			new NotificationCompat.Builder(getApplicationContext())
 				.setSmallIcon(R.drawable.ic_mic_white_36dp)
 				.setContentTitle(getString(R.string.notification_recording))
-				.setContentText(mTimerFormat.format(mElapsedSeconds * 1000))
+				.setContentText(mTimerFormat.format(elapsedSeconds * 1000))
 				.setOngoing(true);
 		
 		mBuilder.setContentIntent(PendingIntent.getActivities(getApplicationContext(), 0,

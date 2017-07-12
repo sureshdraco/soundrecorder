@@ -51,7 +51,8 @@
                     android:layout_marginTop="7dp"
                     android:fontFamily="sans-serif-condensed"
                     android:text="00:00"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp"
+                    android:visibility="gone"/>
 
                 <TextView
                     android:id="@+id/file_date_added_text"
@@ -59,6 +60,15 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-condensed"
                     android:text="mmm dd yyyy - hh:mm a"
+                    android:textSize="12sp"/>
+
+                <TextView
+                    android:id="@+id/file_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="0 kb"
                     android:textSize="12sp"/>
             </LinearLayout>
 

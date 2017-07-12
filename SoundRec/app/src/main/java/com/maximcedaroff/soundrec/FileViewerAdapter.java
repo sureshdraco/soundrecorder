@@ -55,12 +55,13 @@ public class FileViewerAdapter extends RecyclerView.Adapter<FileViewerAdapter.Re
 			- TimeUnit.MINUTES.toSeconds(minutes);
 		
 		holder.vName.setText(item.getName());
+		holder.fileSize.setText(item.getFileSize() + " kb");
 		holder.vLength.setText(String.format("%02d:%02d", minutes, seconds));
 		holder.vDateAdded.setText(
 			DateUtils.formatDateTime(
 				mContext,
 				item.getTime(),
-				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_YEAR
+				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_YEAR
 			)
 		);
 		
@@ -140,7 +141,7 @@ public class FileViewerAdapter extends RecyclerView.Adapter<FileViewerAdapter.Re
 	}
 	
 	public static class RecordingsViewHolder extends RecyclerView.ViewHolder {
-		protected TextView vName;
+		protected TextView vName, fileSize;
 		protected TextView vLength;
 		protected TextView vDateAdded;
 		protected View cardView;
@@ -148,6 +149,7 @@ public class FileViewerAdapter extends RecyclerView.Adapter<FileViewerAdapter.Re
 		public RecordingsViewHolder(View v) {
 			super(v);
 			vName = (TextView) v.findViewById(R.id.file_name_text);
+			fileSize = (TextView) v.findViewById(R.id.file_size);
 			vLength = (TextView) v.findViewById(R.id.file_length_text);
 			vDateAdded = (TextView) v.findViewById(R.id.file_date_added_text);
 			cardView = v.findViewById(R.id.card_view);
