@@ -52,11 +52,23 @@ public class RecActivity extends AppCompatActivity {
 		recordButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onRecord(startRecording);
-				startRecording = !startRecording;
+				performRecord();
 			}
 		});
 		recordStatus = (TextView) findViewById(R.id.recording_status_text);
+	}
+	
+	private void performRecord() {
+		onRecord(startRecording);
+		startRecording = !startRecording;
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (!startRecording) {
+			performRecord();
+		}
 	}
 	
 	// Recording Start/Stop

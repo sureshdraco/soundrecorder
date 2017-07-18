@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaRecorder;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -14,7 +13,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Timer;
@@ -30,7 +28,7 @@ public class RecordingService extends Service {
 	private String fileName = null;
 	private String filePath = null;
 	
-	private MediaRecorder recorder = null;
+	private ExtAudioRecorder recorder = null;
 	
 	private DBHelper database;
 	
@@ -77,16 +75,8 @@ public class RecordingService extends Service {
 	public void startRecording() {
 		setFileNameAndPath();
 		
-		recorder = new MediaRecorder();
-		recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+		recorder = ExtAudioRecorder.getInstanse(false);
 		recorder.setOutputFile(filePath);
-		recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-		recorder.setAudioChannels(1);
-		//high quality
-		recorder.setAudioSamplingRate(44100);
-		recorder.setAudioEncodingBitRate(192000);
-		
 		try {
 			recorder.prepare();
 			recorder.start();
@@ -95,7 +85,7 @@ public class RecordingService extends Service {
 			//startTimer();
 			//startForeground(1, createNotification());
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Log.e(LOG_TAG, "prepare() failed");
 		}
 	}
@@ -107,7 +97,7 @@ public class RecordingService extends Service {
 			count++;
 			
 			fileName = getString(R.string.default_file_name)
-				+ "_" + (database.getCount() + count) + ".mp4";
+				+ "_" + (database.getCount() + count) + ".wav";
 			filePath = Environment.getExternalStorageDirectory().getAbsolutePath();
 			filePath += "/SoundRecorder/" + fileName;
 			

@@ -26,12 +26,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <Button
+                <ImageView
                     android:id="@+id/menu_but"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:layout_alignParentLeft="true"
-                    android:background="@drawable/ic_menu_black_24dp"
+                    android:layout_centerVertical="true"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_menu_24dp"
                     />
 
                 <TextView
@@ -39,28 +41,31 @@
                     style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="20dp"
-                    android:layout_toRightOf="@+id/menu_but"
                     android:text="@string/voiserecorder"
                     android:textColor="@android:color/white"
                     android:textSize="25sp"/>
 
                 <ImageView
                     android:id="@+id/action_record"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_centerVertical="true"
                     android:layout_toLeftOf="@+id/action_list"
-                    android:src="@drawable/mic"/>
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_mic_24dp"/>
 
                 <ImageView
                     android:id="@+id/action_list"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:layout_alignParentRight="true"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
-                    android:src="@drawable/list"/>
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="7dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_list_24dp"/>
             </RelativeLayout>
 
 
