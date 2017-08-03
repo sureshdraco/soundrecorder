@@ -200,7 +200,7 @@ public class FileViewerAdapter extends RecyclerView.Adapter<FileViewerAdapter.Re
 		).show();
 
 		mDatabase.removeItemWithId(getItem(position).getId());
-		notifyItemRemoved(position);
+		notifyDataSetChanged();
 	}
 
 	//TODO
@@ -226,16 +226,19 @@ public class FileViewerAdapter extends RecyclerView.Adapter<FileViewerAdapter.Re
 			File oldFilePath = new File(getItem(position).getFilePath());
 			oldFilePath.renameTo(f);
 			mDatabase.renameItem(getItem(position), name, mFilePath);
-			notifyItemChanged(position);
+			notifyDataSetChanged();
 		}
 	}
 
 	public void shareFileDialog(int position) {
-		Intent shareIntent = new Intent();
-		shareIntent.setAction(Intent.ACTION_SEND);
-		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(getItem(position).getFilePath())));
-		shareIntent.setType("audio/mp4");
-		mContext.startActivity(Intent.createChooser(shareIntent, mContext.getText(R.string.send_to)));
+		try {
+			Intent shareIntent = new Intent();
+			shareIntent.setAction(Intent.ACTION_SEND);
+			shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(getItem(position).getFilePath())));
+			shareIntent.setType("audio/mp4");
+			mContext.startActivity(Intent.createChooser(shareIntent, mContext.getText(R.string.send_to)));
+		} catch (Exception e) {
+		}
 	}
 
 	public void renameFileDialog(final int position) {
